@@ -17,8 +17,8 @@ export class CardManager extends Component {
 
     cardValues: number[] = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
     cards: Card[];
-    col: number = 5;
-    row: number = 6;
+    col: number = 3;
+    row: number = 3;
 
     firstCard: PickedCard = {
         index: null,
@@ -55,18 +55,23 @@ export class CardManager extends Component {
     }
 
     instanceCards() {
-        const length = this.row * this.col;
-        const couple = Math.floor(length/2);
+        const totalCard = this.row * this.col;
+        const oddCards = totalCard % 2 === 1;
+        const couple = Math.floor(totalCard/2);
         const cardValues = this.getRandomPair(couple);
         let count = 0;
-        for(let i = 0; i < length; i++){
-            if(length / 2 === i )  {
+        const playableCard = oddCards ? totalCard - 1 : totalCard
+        for(let i = 0; i < playableCard; i++){
+            if(playableCard / 2 === i )  {
                 count = 0;
             }
             const spriteIndex = cardValues[count];
-
-            this.instanceCard(count,this.animalSprites[spriteIndex]);
+            console.log('spriteIndex',this.animalSprites[spriteIndex]);
+            this.instanceCard(spriteIndex,this.animalSprites[spriteIndex],false);
             count++;
+        }
+        if(oddCards){
+            this.instanceCard(999,this.animalSprites[0],true);
         }
     }
 
@@ -84,12 +89,14 @@ export class CardManager extends Component {
         return shuffle.slice(0,nCouple);
     }
 
-    instanceCard(index, spriteFrame){
+    instanceCard(index, spriteFrame, lockCard){
         const card = instantiate(this.Card);
-        // if(index === sprites.length){
-        //     card.getComponent(Card).lockCard = true;
-        // }
-        card.getComponent(Card).initCard(index, spriteFrame);
+        if(lockCard){
+            card.getComponent(Card).initLockCard();
+        }
+        else{
+            card.getComponent(Card).initCard(index, spriteFrame);
+        }
         card.active = false;
         this.node.addChild(card);
     }

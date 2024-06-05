@@ -20,13 +20,13 @@ export class Card extends Component {
 
     initCard(value: number, sprite: SpriteFrame) {
         this.value = value;
-        if(this.lockCard) {
-            this.backSide.color = Color.BLACK
-            return;
-        }
         this.frontSide.spriteFrame = sprite;
     }
-
+    initLockCard(){
+        this.lockCard = true;
+        this.backSide.color = Color.BLACK;
+        this.frontSide.color = Color.BLACK;
+    }
     flipToBackSide() {
         // flip 
         tween(this.frontSide.node)

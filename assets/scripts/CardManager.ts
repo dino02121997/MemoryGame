@@ -16,7 +16,7 @@ export class CardManager extends Component {
     animalSprites: SpriteFrame[] = [];
 
     cards: Card[];
-    row: number = 2;
+    row: number = 4;
     col: number = 2;
 
     firstCard: PickedCard = {
@@ -36,13 +36,12 @@ export class CardManager extends Component {
     loadSprites()  {
         var self = this;
         assetManager.loadBundle('texture', (err, bundle) => {
-            console.log(bundle)
             for(let i = 0; i < 5;i++){
                 bundle.load(`${i+1}/spriteFrame`, SpriteFrame, function (err, spriteFrame) {
-                    console.log('a',spriteFrame)
                     self.animalSprites.push(spriteFrame);
                     if(i === 4){
                         self.instanceCards();
+                        self.randomizeChildren();
                         console.log(self.animalSprites);
                     }
                 });
@@ -51,24 +50,45 @@ export class CardManager extends Component {
         });
     }
 
-    instanceCard(i){
-        const card = instantiate(this.Card);
-        card.getComponent(Card).initCard(i, this.animalSprites[i]);
-        this.node.addChild(card);
-    }
-
     instanceCards() {
         const length = this.row * this.col;
         let indexSprite = 0;
-
+        const sprites = this.getRandomPair(this.row);
+        console.log('result',sprites)
         for(let i = 0; i < length; i++){
-            if(length / 2 === 0)  {
-                indexSprite = 0
+            if(length / 2 === i)  {
+                indexSprite = 0;
             }
-            this.instanceCard(indexSprite);
+            this.instanceCard(indexSprite,sprites);
             indexSprite++;
         }
+    }
 
+    getRandomPair(nCouple): SpriteFrame[] {
+        const shuffled = [...this.animalSprites].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, nCouple);
+    }
+
+    instanceCard(i, sprites){
+        const card = instantiate(this.Card);
+        card.getComponent(Card).initCard(i, sprites[i]);
+        card.active = false;
+        this.node.addChild(card);
+    }
+
+    randomizeChildren() {
+        let children = this.node.children.slice();
+
+        let shuffled = [...children].sort(() => 0.5 - Math.random());
+
+        for (let child of children) {
+            child.removeFromParent();
+        }
+
+        for (let child of shuffled) {
+            this.node.addChild(child);
+            child.active = true;
+        }
     }
 
     compareCard(card: Card, other: Card): boolean {

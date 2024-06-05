@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Component, instantiate, Layout, Node, Prefab, Sprite, SpriteFrame } from 'cc';
+import { _decorator, assetManager, Component, instantiate, Layout, Node, Prefab, Sprite, SpriteFrame, UITransform } from 'cc';
 import { Card } from './Card';
 const { ccclass, property } = _decorator;
 
@@ -19,6 +19,9 @@ export class CardManager extends Component {
     cards: Card[];
     col: number = 3;
     row: number = 3;
+    
+    transform: UITransform;
+    layout: Layout;
 
     firstCard: PickedCard = {
         index: null,
@@ -30,12 +33,22 @@ export class CardManager extends Component {
         card : new Card(),
     };
 
+
     onLoad(){
         // this.loadSprites();
-        this.node.getComponent(Layout).constraintNum = this.col;
+        this.initLayout();
         this.instanceCards();
         this.randomizeChildren();
     }
+
+    initLayout(){
+        this.transform = this.node.getComponent(UITransform);
+        this.layout = this.node.getComponent(Layout);
+        this.layout.constraintNum = this.col;
+        this.transform.width = this.col * this.layout.cellSize.width + ( this.col - 1 ) * this.layout.spacingX;
+        this.transform.height = this.row * this.layout.cellSize.height + ( this.row - 1 ) * this.layout.spacingY;
+    }
+    
 
     loadSprites()  {
         var self = this;
@@ -66,13 +79,13 @@ export class CardManager extends Component {
                 count = 0;
             }
             const spriteIndex = cardValues[count];
-            console.log('spriteIndex',this.animalSprites[spriteIndex]);
             this.instanceCard(spriteIndex,this.animalSprites[spriteIndex],false);
             count++;
         }
         if(oddCards){
             this.instanceCard(999,this.animalSprites[0],true);
         }
+      
     }
 
     shuffleArray(array: number[]):  number[] { 

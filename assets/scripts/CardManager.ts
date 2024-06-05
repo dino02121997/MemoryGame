@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Component, instantiate, Node, Prefab, Sprite, SpriteFrame } from 'cc';
+import { _decorator, assetManager, Component, instantiate, Layout, Node, Prefab, Sprite, SpriteFrame } from 'cc';
 import { Card } from './Card';
 const { ccclass, property } = _decorator;
 
@@ -12,12 +12,13 @@ export class CardManager extends Component {
     @property(Prefab)
     Card: Prefab = null;
     
-    @property(Array<SpriteFrame>)
+    @property(SpriteFrame)
     animalSprites: SpriteFrame[] = [];
 
+    cardValues: number[] = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
     cards: Card[];
-    row: number = 4;
-    col: number = 2;
+    col: number = 5;
+    row: number = 6;
 
     firstCard: PickedCard = {
         index: null,
@@ -30,48 +31,65 @@ export class CardManager extends Component {
     };
 
     onLoad(){
-        this.loadSprites();
+        // this.loadSprites();
+        this.node.getComponent(Layout).constraintNum = this.col;
+        this.instanceCards();
+        this.randomizeChildren();
     }
 
     loadSprites()  {
         var self = this;
         assetManager.loadBundle('texture', (err, bundle) => {
-            for(let i = 0; i < 5;i++){
+            console.log(bundle)
+
+            for(let i = 0; i < 15;i++){
                 bundle.load(`${i+1}/spriteFrame`, SpriteFrame, function (err, spriteFrame) {
                     self.animalSprites.push(spriteFrame);
-                    if(i === 4){
+                    if(i === 14){
                         self.instanceCards();
                         self.randomizeChildren();
-                        console.log(self.animalSprites);
                     }
                 });
             }
-            console.log(err)
         });
     }
 
     instanceCards() {
         const length = this.row * this.col;
-        let indexSprite = 0;
-        const sprites = this.getRandomPair(this.row);
-        console.log('result',sprites)
+        const couple = Math.floor(length/2);
+        const cardValues = this.getRandomPair(couple);
+        let count = 0;
         for(let i = 0; i < length; i++){
-            if(length / 2 === i)  {
-                indexSprite = 0;
+            if(length / 2 === i )  {
+                count = 0;
             }
-            this.instanceCard(indexSprite,sprites);
-            indexSprite++;
+            const spriteIndex = cardValues[count];
+
+            this.instanceCard(count,this.animalSprites[spriteIndex]);
+            count++;
         }
     }
 
-    getRandomPair(nCouple): SpriteFrame[] {
-        const shuffled = [...this.animalSprites].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, nCouple);
+    shuffleArray(array: number[]):  number[] { 
+        for (let i = array.length - 1; i > 0; i--) { 
+          const j = Math.floor(Math.random() * (i + 1)); 
+          [array[i], array[j]] = [array[j], array[i]]; 
+        } 
+        return array; 
+    };
+
+    getRandomPair(nCouple:number): number[] {
+        const shuffle = this.shuffleArray(this.cardValues);
+        const result = shuffle.slice(0, nCouple)
+        return shuffle.slice(0,nCouple);
     }
 
-    instanceCard(i, sprites){
+    instanceCard(index, spriteFrame){
         const card = instantiate(this.Card);
-        card.getComponent(Card).initCard(i, sprites[i]);
+        // if(index === sprites.length){
+        //     card.getComponent(Card).lockCard = true;
+        // }
+        card.getComponent(Card).initCard(index, spriteFrame);
         card.active = false;
         this.node.addChild(card);
     }
@@ -79,7 +97,7 @@ export class CardManager extends Component {
     randomizeChildren() {
         let children = this.node.children.slice();
 
-        let shuffled = [...children].sort(() => 0.5 - Math.random());
+        let shuffled = [...children].sort(() => Math.random() - 0.5);
 
         for (let child of children) {
             child.removeFromParent();

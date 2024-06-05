@@ -1,4 +1,4 @@
-import { _decorator, Component, Node , Sprite, SpriteFrame, tween, v3 } from 'cc';
+import { _decorator, Color, Component, Node , Sprite, SpriteFrame, tween, v3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Card')
@@ -16,9 +16,14 @@ export class Card extends Component {
 
     sprite: Sprite;
 
+    lockCard: boolean = false;
 
     initCard(value: number, sprite: SpriteFrame) {
         this.value = value;
+        if(this.lockCard) {
+            this.backSide.color = Color.BLACK
+            return;
+        }
         this.frontSide.spriteFrame = sprite;
     }
 
@@ -32,6 +37,7 @@ export class Card extends Component {
     }
 
     flipToFrontSide() {
+        if(this.lockCard) return;
         tween(this.backSide.node)
             .to(this.duration/2,{scale: v3(0,1,1)}).start();
         

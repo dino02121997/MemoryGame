@@ -1,4 +1,4 @@
-import { _decorator, assetManager, Component, instantiate, Layout, Node, Prefab, Sprite, SpriteFrame, UITransform } from 'cc';
+import { _decorator, assetManager, Button, Component, EventHandler, instantiate, Layout, Node, Prefab, SpriteFrame, UITransform , Event} from 'cc';
 import { Card } from './Card';
 const { ccclass, property } = _decorator;
 
@@ -23,17 +23,12 @@ export class CardManager extends Component {
     transform: UITransform;
     layout: Layout;
 
-    firstCard: PickedCard = {
-        index: null,
-        card : new Card(),
-    };
+    firstCard: Card
     
-    secondCard = {
-        index: null,
-        card : new Card(),
-    };
+    secondCard: Card
 
-
+    currentPoint: number = 0;
+    currentTurn: number = 0;
     onLoad(){
         // this.loadSprites();
         this.initLayout();
@@ -54,7 +49,6 @@ export class CardManager extends Component {
         var self = this;
         assetManager.loadBundle('texture', (err, bundle) => {
             console.log(bundle)
-
             for(let i = 0; i < 15;i++){
                 bundle.load(`${i+1}/spriteFrame`, SpriteFrame, function (err, spriteFrame) {
                     self.animalSprites.push(spriteFrame);
@@ -103,15 +97,21 @@ export class CardManager extends Component {
     }
 
     instanceCard(index, spriteFrame, lockCard){
-        const card = instantiate(this.Card);
+        const cardNode = instantiate(this.Card);
         if(lockCard){
-            card.getComponent(Card).initLockCard();
+            cardNode.getComponent(Card).initLockCard();
         }
         else{
-            card.getComponent(Card).initCard(index, spriteFrame);
+            cardNode.getComponent(Card).initCard(index, spriteFrame);
+            const clickEventHandler = new EventHandler();
+            clickEventHandler.target = this.node;
+            clickEventHandler.component = 'CardManager';
+            clickEventHandler.handler = 'onClickCard';
+            const button = cardNode.getComponent(Button);
+            button.clickEvents.push(clickEventHandler);
         }
-        card.active = false;
-        this.node.addChild(card);
+        cardNode.active = false;
+        this.node.addChild(cardNode);
     }
 
     randomizeChildren() {
@@ -133,6 +133,38 @@ export class CardManager extends Component {
         return card.value === other.value
     }
 
+    onClickCard(event: Event): void {
+        const node = event.target as Node;
+        if(this.firstCard && this.secondCard) return;
+        if(!this.firstCard){
+            this.firstCard = node.getComponent(Card);
+            this.firstCard.flipToFrontSide(() => {});
+        }
+        else if(this.firstCard.node.uuid !== node.uuid){
+            this.secondCard = node.getComponent(Card);
+            this.secondCard.flipToFrontSide(()=>{
+                if(!this.compareCard(this.firstCard,this.secondCard)){
+               
+                    this.currentPoint++;
+                    this.firstCard.flipToBackSide(()=>{});
+                    this.secondCard.flipToBackSide(() => { 
+                        this.firstCard = null;
+                        this.secondCard = null;
+                        });
+                    return;
+                }
+                this.firstCard.hiddenCard(() => {});
+                this.secondCard.hiddenCard(() => {
+                    this.firstCard = null;
+                    this.secondCard = null;
+                });
+              
+              
+            });
+            this.currentTurn++;
+            console.log(this.currentTurn,this.currentPoint)
+        }
+    }
   
 }
 

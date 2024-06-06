@@ -17,8 +17,8 @@ export class CardManager extends Component {
 
     cardValues: number[] = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
     cards: Card[];
-    col: number = 3;
-    row: number = 3;
+    col: number = 4;
+    row: number = 4;
     
     transform: UITransform;
     layout: Layout;
@@ -91,9 +91,7 @@ export class CardManager extends Component {
     };
 
     getRandomPair(nCouple:number): number[] {
-        const shuffle = this.shuffleArray(this.cardValues);
-        const result = shuffle.slice(0, nCouple)
-        return shuffle.slice(0,nCouple);
+        return this.shuffleArray(this.cardValues).slice(0,nCouple);
     }
 
     instanceCard(index, spriteFrame, lockCard){

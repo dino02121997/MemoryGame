@@ -29,8 +29,11 @@ export class CardManager extends Component {
 
     currentPoint: number = 0;
     currentTurn: number = 0;
-    onLoad(){
-        // this.loadSprites();
+
+
+    generateCards(col:number,row:number){
+        this.col = col;
+        this.row = row;
         this.initLayout();
         this.instanceCards();
         this.randomizeChildren();
@@ -44,23 +47,6 @@ export class CardManager extends Component {
         this.transform.height = this.row * this.layout.cellSize.height + ( this.row - 1 ) * this.layout.spacingY;
     }
     
-
-    loadSprites()  {
-        var self = this;
-        assetManager.loadBundle('texture', (err, bundle) => {
-            console.log(bundle)
-            for(let i = 0; i < 15;i++){
-                bundle.load(`${i+1}/spriteFrame`, SpriteFrame, function (err, spriteFrame) {
-                    self.animalSprites.push(spriteFrame);
-                    if(i === 14){
-                        self.instanceCards();
-                        self.randomizeChildren();
-                    }
-                });
-            }
-        });
-    }
-
     instanceCards() {
         const totalCard = this.row * this.col;
         const oddCards = totalCard % 2 === 1;
@@ -142,8 +128,6 @@ export class CardManager extends Component {
             this.secondCard = node.getComponent(Card);
             this.secondCard.flipToFrontSide(()=>{
                 if(!this.compareCard(this.firstCard,this.secondCard)){
-               
-                    this.currentPoint++;
                     this.firstCard.flipToBackSide(()=>{});
                     this.secondCard.flipToBackSide(() => { 
                         this.firstCard = null;
@@ -151,6 +135,7 @@ export class CardManager extends Component {
                         });
                     return;
                 }
+                this.currentPoint++;
                 this.firstCard.hiddenCard(() => {});
                 this.secondCard.hiddenCard(() => {
                     this.firstCard = null;
@@ -160,9 +145,14 @@ export class CardManager extends Component {
               
             });
             this.currentTurn++;
-            console.log(this.currentTurn,this.currentPoint)
         }
     }
   
+    onClearCards(){
+        let children = this.node.children.slice();
+        for (let child of children) {
+            child.removeFromParent();
+        }
+    }
 }
 

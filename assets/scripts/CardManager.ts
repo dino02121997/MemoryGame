@@ -1,6 +1,7 @@
 import { _decorator, Button, Component, EventHandler, instantiate, Layout, Node, Prefab, SpriteFrame, UITransform , Event} from 'cc';
 import { Card } from './Card';
 import { GameManager } from './GameManager';
+import { SoundManager } from './SoundManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('CardManager')
@@ -10,7 +11,7 @@ export class CardManager extends Component {
     Card: Prefab = null;
     
     @property(SpriteFrame)
-    animalSprites: SpriteFrame[] = [];
+    animalSprites: SpriteFrame[] = [];    
 
     cardValues: number[] = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14];
     cards: Card[];
@@ -122,9 +123,11 @@ export class CardManager extends Component {
             this.firstCard.flipToFrontSide(() => {});
         }
         else if(this.firstCard.node.uuid !== node.uuid){
+            GameManager.getInstance().updateTurn();
             this.secondCard = node.getComponent(Card);
             this.secondCard.flipToFrontSide(()=>{
                 if(!this.compareCard(this.firstCard,this.secondCard)){
+                    SoundManager.getInstance().playSound('reject');
                     this.firstCard.flipToBackSide(()=>{});
                     this.secondCard.flipToBackSide(() => { 
                         this.firstCard = null;
@@ -133,6 +136,7 @@ export class CardManager extends Component {
                     return;
                 }
                 GameManager.getInstance().updatePoint();
+                SoundManager.getInstance().playSound('match');
                 this.firstCard.hiddenCard(() => {});
                 this.secondCard.hiddenCard(() => {
                     this.firstCard = null;
@@ -141,7 +145,7 @@ export class CardManager extends Component {
               
               
             });
-            GameManager.getInstance().updateTurn();
+           
         }
     }
   

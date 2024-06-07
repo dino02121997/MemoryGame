@@ -1,4 +1,5 @@
 import { _decorator, Color, Component, Node , Sprite, SpriteFrame, tween, UIOpacity, v3 } from 'cc';
+import { SoundManager } from './SoundManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Card')
@@ -36,6 +37,7 @@ export class Card extends Component {
 
     flipToBackSide(callback?:() => void) {
         // flip 
+        SoundManager.getInstance().playSound('flip');
         tween(this.frontSide.node)
             .to(this.duration/2,{scale: v3(0,1,1)}).start();
 
@@ -46,6 +48,7 @@ export class Card extends Component {
 
     flipToFrontSide(callback?:() => void) {
         if(this.lockCard) return;
+        SoundManager.getInstance().playSound('flip');
         tween(this.backSide.node)
             .to(this.duration/2,{scale: v3(0,1,1)}).start();
         

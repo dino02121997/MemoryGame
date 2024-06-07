@@ -11,7 +11,7 @@ export class ResultPopup extends Component {
     @property(Label)
     pointLabel: Label = null;
 
-    start() {
+    onEnable() {
         this.turnLabel.string = `Your Turn: ${GameManager.getInstance().currentTurn}`;
         this.pointLabel.string = `Your Point: ${GameManager.getInstance().currentPoint}`;
     }

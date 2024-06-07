@@ -5,7 +5,7 @@ const { ccclass, property } = _decorator;
 export class SoundManager extends Component {
 
     sounds: {[key: string]: AudioClip} = {};
-    soundsName: string[] = [];
+    soundNames: string[] = [];
     static instance: SoundManager;
 
     static getInstance(): SoundManager {
@@ -20,7 +20,7 @@ export class SoundManager extends Component {
 
 
     playSound(name: string) {
-        if(this.soundsName.some(value => name === value )){
+        if(this.soundNames.some(value => name === value )){
             this.sounds[name].play();
             return;
         }
@@ -28,7 +28,7 @@ export class SoundManager extends Component {
         resources.load(`audios/${name}`, AudioClip, function (err, audio: AudioClip) {
             audio.play();
             self.sounds[name] = audio;
-            self.soundsName.push(name);
+            self.soundNames.push(name);
         });
     }
 

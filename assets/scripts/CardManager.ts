@@ -1,11 +1,8 @@
-import { _decorator, assetManager, Button, Component, EventHandler, instantiate, Layout, Node, Prefab, SpriteFrame, UITransform , Event} from 'cc';
+import { _decorator, Button, Component, EventHandler, instantiate, Layout, Node, Prefab, SpriteFrame, UITransform , Event} from 'cc';
 import { Card } from './Card';
+import { GameManager } from './GameManager';
 const { ccclass, property } = _decorator;
 
-interface PickedCard {
-    index: number;
-    card: Card;
-}
 @ccclass('CardManager')
 export class CardManager extends Component {
 
@@ -135,7 +132,7 @@ export class CardManager extends Component {
                         });
                     return;
                 }
-                this.currentPoint++;
+                GameManager.getInstance().updatePoint();
                 this.firstCard.hiddenCard(() => {});
                 this.secondCard.hiddenCard(() => {
                     this.firstCard = null;
@@ -144,7 +141,7 @@ export class CardManager extends Component {
               
               
             });
-            this.currentTurn++;
+            GameManager.getInstance().updateTurn();
         }
     }
   

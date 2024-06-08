@@ -27,7 +27,6 @@ export class MainScreen extends Component {
 
     onClickSetting(){
         this.uiManager.showSettingPopup();
-        this.node.active = false;
     }
 }
 

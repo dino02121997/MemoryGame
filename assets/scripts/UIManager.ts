@@ -39,6 +39,7 @@ export class UIManager extends Component {
     }
 
     hideResultPopup(): void {
+        this.resultPopup.clearOldResult();
         this.hideUI(this.resultPopup.node);
     }
 

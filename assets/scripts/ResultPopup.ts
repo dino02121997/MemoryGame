@@ -17,15 +17,17 @@ export class ResultPopup extends Component {
 
     uiManager: UIManager = null;
 
+    winColor = new Color(73, 184, 64);
+    failColor = new Color(255, 63, 62);
+
     onLoad(){
         this.uiManager = find("Canvas/UIManager").getComponent(UIManager);
     }
 
 
     setInfo(userScore: Score,isWin: boolean) {
-        this.clearOldResult();
         this.resultLabel.string = isWin ? 'You Win!' : 'Game Over!'
-        this.resultLabel.color = isWin ? Color.GREEN : Color.RED;
+        this.resultLabel.color = isWin ? this.winColor : this.failColor;
         this.turnLabel.string = `Your Turn: ${userScore.turn}`;
         this.pointLabel.string = `Your Point: ${userScore.point}`;
         this.resultLabel.node.active = true;
@@ -33,6 +35,7 @@ export class ResultPopup extends Component {
 
     clearOldResult(){
         this.resultLabel.string = '';
+        this.resultLabel.color = Color.TRANSPARENT;
         this.turnLabel.string = '';
         this.pointLabel.string = '';
     }

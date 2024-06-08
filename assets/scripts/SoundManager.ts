@@ -26,6 +26,7 @@ export class SoundManager extends Component {
         }
         var self = this;
         resources.load(`audios/${name}`, AudioClip, function (err, audio: AudioClip) {
+            if(err) return;
             audio.play();
             self.sounds[name] = audio;
             self.soundNames.push(name);

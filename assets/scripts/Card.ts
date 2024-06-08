@@ -25,6 +25,7 @@ export class Card extends Component {
 
     onClickCardCallBack: (card: Card) => void
 
+    lockColor = new Color(254, 251, 236)
     onLoad() {
         this.opacity = this.node.getComponent(UIOpacity);
     }
@@ -37,7 +38,7 @@ export class Card extends Component {
 
     initLockCard(){
         this.isLock = true;
-        this.backSide.color = Color.BLACK;
+        this.backSide.color = this.lockColor;
     }
 
     flipToBackSide(callback?:() => void) {

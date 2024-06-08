@@ -36,7 +36,6 @@ export class SettingPopup extends Component {
       }
    }
    onClickStart(){
-      console.log(this.selectedLevel)
       GameManager.getInstance().setGameLevel(this.selectedLevel);
       GameManager.getInstance().startGame();
       this.node.active = false;

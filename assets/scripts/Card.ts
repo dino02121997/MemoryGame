@@ -17,48 +17,60 @@ export class Card extends Component {
 
     sprite: Sprite;
 
-    lockCard: boolean = false;
+    isLock: boolean = false;
+
+    isUp: boolean = false;
     
     opacity: UIOpacity;
+
+    onClickCardCallBack: (card: Card) => void
+
     onLoad() {
         this.opacity = this.node.getComponent(UIOpacity);
     }
 
-    initCard(value: number, sprite: SpriteFrame) {
+    initCard(value: number, sprite: SpriteFrame,callback:(card: Card) => void) {
         this.value = value;
         this.frontSide.spriteFrame = sprite;
+        this.onClickCardCallBack = callback;
     }
 
     initLockCard(){
-        this.lockCard = true;
+        this.isLock = true;
         this.backSide.color = Color.BLACK;
-        this.frontSide.color = Color.BLACK;
     }
 
     flipToBackSide(callback?:() => void) {
-        // flip 
-        SoundManager.getInstance().playSound('flip');
-        tween(this.frontSide.node)
-            .to(this.duration/2,{scale: v3(0,1,1)}).start();
-
-        tween(this.backSide.node)
-            .to(this.duration,{scale: v3(1,1,1)}, {onComplete:() => { typeof callback === 'function' && callback(); }}).start();
-        
+        setTimeout(() => {
+            SoundManager.getInstance().playSound('flip');
+            tween(this.frontSide.node)
+                .to(this.duration/2,{scale: v3(0,1,1)}).start();
+    
+            tween(this.backSide.node)
+                .to(this.duration,{scale: v3(1,1,1)}, {onComplete:() => { 
+                    typeof callback === 'function' && callback(); 
+                    this.isUp = false;
+                }}).start();
+        },400)
     }
 
     flipToFrontSide(callback?:() => void) {
-        if(this.lockCard) return;
+        this.isUp = true;
         SoundManager.getInstance().playSound('flip');
         tween(this.backSide.node)
             .to(this.duration/2,{scale: v3(0,1,1)}).start();
         
         tween(this.frontSide.node)
             .to(this.duration,{scale: v3(1,1,1)},{onComplete:() => { typeof callback === 'function' && callback(); }}).start();
-        // flip 
     }  
     
     hiddenCard(callback?:() => void){
         tween(this.opacity).to(this.duration,{opacity: 0},{onComplete:() => { typeof callback === 'function' && callback(); }}).start();
+    }
+
+    onClickCard(){
+        if(this.isLock || this.isUp) return;
+        this.onClickCardCallBack(this.node.getComponent(Card));
     }
 
 }

@@ -21,13 +21,10 @@ export class CardManager extends Component {
     transform: UITransform;
     layout: Layout;
 
-    firstCard: Card
-    
-    secondCard: Card
-
     currentPoint: number = 0;
     currentTurn: number = 0;
 
+    selectedCards: Card[] = [];
 
     generateCards(col:number,row:number){
         this.col = col;
@@ -84,13 +81,7 @@ export class CardManager extends Component {
             cardNode.getComponent(Card).initLockCard();
         }
         else{
-            cardNode.getComponent(Card).initCard(index, spriteFrame);
-            const clickEventHandler = new EventHandler();
-            clickEventHandler.target = this.node;
-            clickEventHandler.component = 'CardManager';
-            clickEventHandler.handler = 'onClickCard';
-            const button = cardNode.getComponent(Button);
-            button.clickEvents.push(clickEventHandler);
+            cardNode.getComponent(Card).initCard(index, spriteFrame, this.onClickCard.bind(this));
         }
         cardNode.active = false;
         this.node.addChild(cardNode);
@@ -115,38 +106,24 @@ export class CardManager extends Component {
         return card.value === other.value
     }
 
-    onClickCard(event: Event): void {
-        const node = event.target as Node;
-        if(this.firstCard && this.secondCard) return;
-        if(!this.firstCard){
-            this.firstCard = node.getComponent(Card);
-            this.firstCard.flipToFrontSide(() => {});
-        }
-        else if(this.firstCard.node.uuid !== node.uuid){
-            GameManager.getInstance().updateTurn();
-            this.secondCard = node.getComponent(Card);
-            this.secondCard.flipToFrontSide(()=>{
-                if(!this.compareCard(this.firstCard,this.secondCard)){
-                    SoundManager.getInstance().playSound('reject');
-                    this.firstCard.flipToBackSide(()=>{});
-                    this.secondCard.flipToBackSide(() => { 
-                        this.firstCard = null;
-                        this.secondCard = null;
-                        });
-                    return;
-                }
-                GameManager.getInstance().updatePoint();
-                SoundManager.getInstance().playSound('match');
-                this.firstCard.hiddenCard(() => {});
-                this.secondCard.hiddenCard(() => {
-                    this.firstCard = null;
-                    this.secondCard = null;
-                });
-              
-              
-            });
-           
-        }
+    onClickCard(card: Card): void {
+        this.selectedCards.push(card);
+        const selectedIndex = this.selectedCards.length - 1;
+        this.selectedCards[selectedIndex].flipToFrontSide();
+        if(selectedIndex % 2 !== 1) return;
+        GameManager.getInstance().updateTurn();
+        this.selectedCards[selectedIndex].flipToFrontSide(() => {
+            if(!this.compareCard(this.selectedCards[selectedIndex-1],this.selectedCards[selectedIndex])){
+                SoundManager.getInstance().playSound('reject');
+                this.selectedCards[selectedIndex-1].flipToBackSide();
+                this.selectedCards[selectedIndex].flipToBackSide();
+                return
+            }
+            SoundManager.getInstance().playSound('match');
+            GameManager.getInstance().updatePoint();
+            this.selectedCards[selectedIndex-1].hiddenCard();
+            this.selectedCards[selectedIndex].hiddenCard();
+        });
     }
   
     onClearCards(){
